@@ -15,7 +15,7 @@ Validates Ubuntu 24.04 ephemeral runner policy, bounded runtime/resources, expli
 - GitHub Actions: fresh run, no test cache.
 - Runtime: Node.js 22 on Ubuntu 24.04.
 - Spec Kit CLI: `specify-cli 1.4.1.dev0`, pinned to upstream commit `979b0a3c1277283371c9901ad0eed04b64a99997`.
-- Component tests: **3/3 passed** on the latest completed run for this branch.
+- Component tests: **4/4 passed** on the latest completed run for this branch.
 - The official CLI scaffold was generated in an isolated temporary directory. Existing repository specifications and constitution were not overwritten.
 
 ## Not yet production-ready
