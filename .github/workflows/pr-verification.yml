@@ -1,0 +1,59 @@
+name: Athlys2 — PR verification
+
+on:
+  pull_request:
+    branches: ["main"]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: athlys2-pr-verification-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  component-tests:
+    name: Athlys2 component tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout immutable PR source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - name: Run component tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --test --test-reporter=tap | tee test-results.tap
+      - name: Hash test evidence
+        if: always()
+        shell: bash
+        run: |
+          if [ -f test-results.tap ]; then sha256sum test-results.tap > test-results.sha256; fi
+      - name: Publish test summary
+        if: always()
+        shell: bash
+        run: |
+          if [ -f test-results.tap ]; then
+            echo '## Athlys2 test evidence' >> "$GITHUB_STEP_SUMMARY"
+            cat test-results.tap >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo '## Athlys2 test evidence unavailable: test process did not produce output.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: athlys2-test-evidence-${{ github.sha }}
+          path: |
+            test-results.tap
+            test-results.sha256
+          if-no-files-found: warn
+          retention-days: 90
