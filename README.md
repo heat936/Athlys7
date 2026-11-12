@@ -20,3 +20,6 @@ Validates Ubuntu 24.04 ephemeral runner policy, bounded runtime/resources, expli
 
 ## Not yet production-ready
 Cross-repository dispatch, a second independent CI provider, persistent evidence storage, signed attestations, SBOM generation, and full end-to-end pipeline orchestration remain open. No merge, release publication, or deployment is performed by this repository.
+
+## Network allowlist validation
+Runner policy accepts normalized fully qualified hostnames only and rejects wildcard, URL, path, port, and duplicate entries. This validates policy input; it does not itself enforce a network firewall.
