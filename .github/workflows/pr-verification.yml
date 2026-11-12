@@ -28,7 +28,7 @@ jobs:
         with:
           node-version: "22"
       - name: Run component tests
-        run: node --test --test-reporter=tap > test-results.tap
+        run: node --test --test-reporter=tap | tee test-results.tap
       - name: Publish test summary
         if: always()
         shell: bash
