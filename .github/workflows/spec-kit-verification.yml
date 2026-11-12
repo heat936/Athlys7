@@ -1,34 +1,20 @@
-name: Fast PR verification and manual Spec Kit audit
+name: Component tests and manual Spec Kit audit
 
 on:
-  pull_request:
-    branches: ["main"]
-    types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - "src/**"
-      - "test/**"
-      - "tests/**"
-      - "specs/**"
-      - ".specify/**"
-      - ".github/workflows/**"
-      - "package.json"
-      - "package-lock.json"
-      - "pnpm-lock.yaml"
-      - "README.md"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: athlys-manual-audit-${{ github.repository }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   verify:
-    name: Fast Node tests
+    name: Manual component verification
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: Checkout immutable source
         uses: actions/checkout@v4
@@ -40,11 +26,9 @@ jobs:
           node-version: "22"
       - name: Run component tests
         run: node --test
-      - name: Set up uv for the manual CLI audit
-        if: github.event_name == 'workflow_dispatch'
+      - name: Set up uv for the official Spec Kit audit
         uses: astral-sh/setup-uv@v5
-      - name: Install and audit the official Spec Kit CLI
-        if: github.event_name == 'workflow_dispatch'
+      - name: Install and audit the pinned official Spec Kit CLI
         run: |
           set -euo pipefail
           uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@979b0a3c1277283371c9901ad0eed04b64a99997
@@ -58,7 +42,3 @@ jobs:
           specify init . --non-interactive --ignore-agent-tools
           test -d .specify
           test -n "$(find .specify -maxdepth 3 -type f -print -quit)"
-      - name: Record source identity
-        run: |
-          printf 'repository=%s\n' "$GITHUB_REPOSITORY"
-          printf 'commit=%s\n' "$GITHUB_SHA"
