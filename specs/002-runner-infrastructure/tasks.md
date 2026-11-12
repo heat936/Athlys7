@@ -22,3 +22,10 @@
 - No production secrets in source control or logs.
 - No automatic merge, deployment, release publication, DNS change, or database migration.
 - A cached or skipped check is never reported as a fresh pass.
+
+
+## Security and runner-policy hardening (2026-11-12)
+- [x] Validate network allowlist entries as fully qualified hostnames.
+- [x] Reject wildcards, schemes, paths, ports, and duplicate domains.
+- [x] Normalize accepted domains in runner evidence.
+- [ ] Confirm the updated component gate passes on the latest PR head.
